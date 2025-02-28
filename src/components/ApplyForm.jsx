@@ -26,12 +26,12 @@ function ApplyForm() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
         if (!formData.resume) {
-            setMessage("Please upload a resume.");
+            alert("Please upload a resume.");
             return;
         }
-
+    
         const data = new FormData();
         data.append("user_id", userId);
         data.append("job_id", jobId);
@@ -39,20 +39,29 @@ function ApplyForm() {
         data.append("email", formData.email);
         data.append("phone", formData.phone);
         data.append("resume", formData.resume);
-
-        // Debugging: Check data before sending
+    
         console.log("Submitting Application:", Object.fromEntries(data));
-
+    
         try {
             const response = await axios.post("http://localhost:5000/api/apply", data, {
                 headers: { "Content-Type": "multipart/form-data" }
             });
+            alert(response.data.message); // Show success alert
             setMessage(response.data.message);
         } catch (error) {
             console.error("Application Error:", error.response?.data || error.message);
-            setMessage("Failed to apply. Try again later.");
+            
+            if (error.response?.status === 400) {
+                alert(error.response.data.message); // Show duplicate application alert
+                setMessage(error.response.data.message);
+            } else {
+                alert("Failed to apply. Try again later.");
+                setMessage("Failed to apply. Try again later.");
+            }
         }
     };
+    
+    
 
     return (
         <div className="max-w-lg mx-auto p-6 bg-red-200 shadow-lg rounded">
