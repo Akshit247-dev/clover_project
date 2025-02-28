@@ -55,7 +55,7 @@ function ApplyForm() {
     };
 
     return (
-        <div className="max-w-lg mx-auto p-6 bg-white shadow-lg rounded">
+        <div className="max-w-lg mx-auto p-6 bg-red-200 shadow-lg rounded">
             <h2 className="text-2xl font-bold mb-4">Apply for Job #{jobId}</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>

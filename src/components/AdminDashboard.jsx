@@ -64,6 +64,33 @@ function JobList() {
         }
     };
 
+    // delect
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this job?")) return;
+    
+        try {
+            const response = await axios.delete(`http://localhost:5000/api/job/${id}`);
+            alert(response.data.message);
+            fetchJobs(); // Refresh job list
+        } catch (error) {
+            console.error("Error deleting job:", error.response?.data || error.message);
+            alert(`Failed to delete job: ${error.response?.data?.error || "Server error"}`);
+        }
+    };
+    // user appliction
+    const handleDeleteApplication = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this application?")) return;
+    
+        try {
+            const response = await axios.delete(`http://localhost:5000/api/job_applications/${id}`);
+            alert(response.data.message);
+            fetchApplications(); // Refresh the applications list
+        } catch (error) {
+            console.error("Error deleting application:", error.response?.data || error.message);
+            alert(`Failed to delete application: ${error.response?.data?.error || "Server error"}`);
+        }
+    };
+        
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto p-6 bg-gray-100 rounded-lg shadow-md">
             <div>
@@ -92,6 +119,17 @@ function JobList() {
                                         <p className="text-sm text-gray-600">Description: {job.description}</p>
                                         <p className="text-sm text-gray-600">Contact: {job.contact_information}</p>
                                         <p className="text-sm text-gray-600">End Date: {new Date(job.end_date).toLocaleDateString()}</p>
+                                        <button 
+                                            onClick={() => {
+                                                // console.log("Deleting job with ID:", job.id);
+                                                handleDelete(job.id);
+                                            }} 
+                                            className="bg-red-500 text-black p-2 rounded hover:bg-red-600"
+                                        >
+                                            Delete
+                                        </button>
+
+
                                     </div>
                                 ))
                             ) : (
@@ -105,20 +143,44 @@ function JobList() {
                 <h2 className="text-2xl font-bold mb-4">User Applications</h2>
                 <div className="space-y-4">
                     {jobApplications.length > 0 ? (
-                        jobApplications.map(application => (
-                            <div key={application.id} className="p-4 bg-gray-100 rounded-lg shadow-md">
-                                <p className="text-sm text-gray-600"><strong>Name:</strong> {application.name}</p>
-                                <p className="text-sm text-gray-600"><strong>Email:</strong> {application.email}</p>
-                                <p className="text-sm text-gray-600"><strong>Phone:</strong> {application.phone}</p>
-                                {application.resume && (
-                                    <p className="text-sm text-gray-600">
-                                        <strong>Resume:</strong> <a href={application.resume} target="_blank" rel="noopener noreferrer" className="text-blue-500">Download</a>
-                                    </p>
-                                )}
-                                
-                            </div>
-                            
-                        ))
+                        jobApplications.map(application => {
+                            const appliedJob = jobs.find(job => job.id === application.job_id);
+                            return (
+                                <div key={application.id} className="p-4 bg-gray-100 rounded-lg shadow-md">
+                                    <p className="text-sm text-gray-600"><strong>Name:</strong> {application.name}</p>
+                                    <p className="text-sm text-gray-600"><strong>Email:</strong> {application.email}</p>
+                                    <p className="text-sm text-gray-600"><strong>Phone:</strong> {application.phone}</p>
+                                    {application.resume && (
+                                        <p className="text-sm text-gray-600">
+                                            <strong>Resume:</strong> <a href={application.resume} target="_blank" rel="noopener noreferrer" className="text-blue-500">Download</a>
+                                        </p>
+                                    )}
+                                    {appliedJob ? (
+                                        <div className="p-4 bg-white rounded-lg shadow-md">
+                                            <h4 className="text-lg font-bold">{appliedJob.job_name}</h4>
+                                            <p className="text-sm text-gray-600">Skills: {appliedJob.skill}</p>
+                                            <p className="text-sm text-gray-600">Positions: {appliedJob.number_positions}</p>
+                                            <p className="text-sm text-gray-600">Description: {appliedJob.description}</p>
+                                            <p className="text-sm text-gray-600">Contact: {appliedJob.contact_information}</p>
+                                            <p className="text-sm text-gray-600">End Date: {new Date(appliedJob.end_date).toLocaleDateString()}</p>
+                                            
+                                            <button 
+                                                 onClick={() => {
+                                                    //  console.log("Deleting application with ID:", application.id);
+                                                     handleDeleteApplication(application.id);
+                                                 }} 
+                                                 className="bg-red-500 text-black p-2 rounded hover:bg-red-600"
+                                             >
+                                                 Delete
+                                             </button>
+
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-gray-600">Job not found.</p>
+                                    )}
+                                </div>
+                            );
+                        })
                     ) : (
                         <p className="text-gray-500 text-center">No applications available.</p>
                     )}
